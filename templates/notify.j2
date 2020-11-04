@@ -1,0 +1,44 @@
+#!/bin/bash
+
+STATE="$1"
+IF="$2"
+
+echo "Notify called with $@" >> /tmp/notify_log
+
+{% for if,ifvalues in vrrp_instance.iteritems() %}
+
+{% if 'notify_master' in ifvalues %}
+if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "MASTER" ] ; then
+  echo "Performing notify commands for $STATE $IF" >> /tmp/notify_log
+{% for com in ifvalues['notify_master'] %}
+  {{ com }}
+{% endfor %}
+fi
+{% endif %}
+
+{% if 'notify_backup' in ifvalues %}
+if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "BACKUP" ] ; then
+  echo "Performing notify commands for $STATE $IF" >> /tmp/notify_log
+{% for com in ifvalues['notify_backup'] %}
+  {{ com }}
+{% endfor %}
+fi
+{% endif %}
+
+{% if 'notify_fault' in ifvalues %}
+if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "FAULT" ] ; then
+  echo "Performing notify commands for $STATE $IF" >> /tmp/notify_log
+{% for com in ifvalues['notify_fault'] %}
+  {{ com }}
+{% endfor %}
+fi
+{% endif %}
+
+{% endfor %}
+
+
+
+# interface not specified or known
+
+exit 1
+

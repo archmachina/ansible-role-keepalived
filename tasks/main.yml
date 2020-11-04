@@ -1,0 +1,68 @@
+---
+
+- name: Set default keepalived service state
+  set_fact:
+    keepalived_service_state: "started"
+
+########
+# Install packages
+
+- name: Install packages
+  apt:
+    name:
+      - keepalived
+    state: present
+
+########
+# Configure firewall rules
+
+- name: Enable firewall rules for VRRP
+  iptables:
+    action: insert
+    protocol: vrrp
+    chain: INPUT
+    destination: 224.0.0.0/8
+    jump: ACCEPT
+
+- name: Save iptables configuration
+  include_tasks: "{{ playbook_dir }}/lib/firewall-save.yml"
+
+########
+# Keepalived configuration
+
+- name: Keepalived configuration
+  template:
+    dest: /etc/keepalived/keepalived.conf
+    src: keepalived.j2
+    mode: 0644
+    owner: root
+    group: root
+  register: keepalived_config
+
+########
+# Configure notify script
+
+- name: Add notify script
+  template:
+    dest: /usr/local/bin/notify
+    src: notify.j2
+    mode: 0755
+    owner: root
+    group: root
+  register: notify_script
+
+########
+# Configure service and restart if necessary
+
+- name: Trigger keepalived restart
+  when: keepalived_config.changed or notify_script.changed
+  set_fact:
+    keepalived_service_state: "restarted"
+
+- name: Keepalived Service
+  service: 
+    name: keepalived
+    enabled: true
+    state: "{{ keepalived_service_state }}"
+
+...

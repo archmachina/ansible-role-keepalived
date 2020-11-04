@@ -1,0 +1,55 @@
+
+{% if vrrp_group is defined %}
+{% for gname,gitems in vrrp_group.iteritems() %}
+vrrp_sync_group {{ gname }} {
+  group {
+{% for instance in gitems %}
+    {{ instance }}
+{% endfor %}
+  }
+}
+{% endfor %}
+{% endif %}
+
+{% for vname,vvalues in vrrp_instance.iteritems() %}
+vrrp_instance {{ vname }} {
+{% if 'state' in vvalues %}
+  state {{ vvalues['state'] }}
+{% else %}
+  state BACKUP
+{% endif %}
+  interface {{ vvalues['interface'] }}
+  virtual_router_id {{ vvalues['vri'] }}
+  priority {{ vvalues['priority'] }}
+  advert_int 1
+  preempt_delay 120
+{% if 'notify_master' in vvalues %}
+  notify_master "/usr/local/bin/notify MASTER {{ vname }}"
+{% endif %}
+{% if 'notify_backup' in vvalues %}
+  notify_backup "/usr/local/bin/notify BACKUP {{ vname }}"
+{% endif %}
+{% if 'notify_fault' in vvalues %}
+  notify_fault "/usr/local/bin/notify FAULT {{ vname }}"
+{% endif %}
+  authentication {
+    auth_type PASS
+    auth_pass V$RPG@s.
+  }
+  virtual_ipaddress {
+{% for address in vvalues['addresses'] %}
+    {{ address }}
+{% endfor %}
+  }
+{% if 'routes' in vvalues %}
+  virtual_routes {
+{% for route in vvalues['routes'] %}
+    {{ route }}
+{% endfor %}
+  }
+{% endif %}
+}
+
+
+{% endfor %}
+
