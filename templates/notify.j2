@@ -5,7 +5,7 @@ IF="$2"
 
 echo "Notify called with $@" >> /tmp/notify_log
 
-{% for if,ifvalues in vrrp_instance.iteritems() %}
+{% for if,ifvalues in vrrp_instance.items() %}
 
 {% if 'notify_master' in ifvalues %}
 if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "MASTER" ] ; then

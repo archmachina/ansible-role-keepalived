@@ -1,6 +1,6 @@
 
 {% if vrrp_group is defined %}
-{% for gname,gitems in vrrp_group.iteritems() %}
+{% for gname,gitems in vrrp_group.items() %}
 vrrp_sync_group {{ gname }} {
   group {
 {% for instance in gitems %}
@@ -11,7 +11,7 @@ vrrp_sync_group {{ gname }} {
 {% endfor %}
 {% endif %}
 
-{% for vname,vvalues in vrrp_instance.iteritems() %}
+{% for vname,vvalues in vrrp_instance.items() %}
 vrrp_instance {{ vname }} {
 {% if 'state' in vvalues %}
   state {{ vvalues['state'] }}
