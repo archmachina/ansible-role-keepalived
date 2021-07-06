@@ -21,20 +21,21 @@ vrrp_instance {{ vname }} {
   interface {{ vvalues['interface'] }}
   virtual_router_id {{ vvalues['vri'] }}
   priority {{ vvalues['priority'] }}
-  advert_int 1
-  preempt_delay 120
-{% if 'notify_master' in vvalues %}
-  notify_master "/usr/local/bin/notify MASTER {{ vname }}"
+  advert_int {{ keepalived_advertisement_interval }}
+{% if 'preempt_delay' in vvalues %}
+  preempt_delay {{ vvalues['preempt_delay'] }}
+{% else %}
+  preempt_delay {{ keepalived_preempt_delay }}
 {% endif %}
 {% if 'notify_backup' in vvalues %}
-  notify_backup "/usr/local/bin/notify BACKUP {{ vname }}"
+  notify_backup "{{ notify_script_location }} BACKUP {{ vname }}"
 {% endif %}
 {% if 'notify_fault' in vvalues %}
-  notify_fault "/usr/local/bin/notify FAULT {{ vname }}"
+  notify_fault "{{ notify_script_location }} FAULT {{ vname }}"
 {% endif %}
   authentication {
     auth_type PASS
-    auth_pass V$RPG@s.
+    auth_pass {{ keepalived_auth_pass }}
   }
   virtual_ipaddress {
 {% for address in vvalues['addresses'] %}

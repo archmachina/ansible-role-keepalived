@@ -44,7 +44,7 @@
 
 - name: Add notify script
   template:
-    dest: /usr/local/bin/notify
+    dest: "{{ notify_script_location }}"
     src: notify.j2
     mode: 0755
     owner: root
