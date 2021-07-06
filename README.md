@@ -5,6 +5,7 @@
 
 Example:
 
+```
 - role: keepalived
   vars:
     vrrp_instance:
@@ -19,5 +20,6 @@ Example:
           - "/sbin/route add -net 0.0.0.0/0 gw 192.168.1.254"
         notify_backup:
           - "/sbin/route add -net 0.0.0.0/0 gw 192.168.1.254"
+```
 
 Note: Keepalived may remove the default route for the interface, so the notify script is required to readd this route if the node transitions from MASTER to BACKUP.
