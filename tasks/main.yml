@@ -17,15 +17,11 @@
 # Configure firewall rules
 
 - name: Enable firewall rules for VRRP
-  iptables:
-    action: insert
-    protocol: vrrp
-    chain: INPUT
-    destination: 224.0.0.0/8
-    jump: ACCEPT
-
-- name: Save iptables configuration
-  include_tasks: "{{ playbook_dir }}/lib/firewall-save.yml"
+  ufw:
+    protocol: any
+    direction: in
+    to_ip: 224.0.0.0/8
+    rule: allow
 
 ########
 # Keepalived configuration
