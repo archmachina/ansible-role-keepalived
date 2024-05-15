@@ -3,42 +3,47 @@
 STATE="$1"
 IF="$2"
 
-echo "Notify called with $@" >> /tmp/notify_log
+# Truncate the current notify log file
+LOG_FILE=/var/log/keepalived_notify_log
+LOG=$(tail -n 1000 $LOG_FILE)
+cat > "$LOG_FILE" <<_EOF_
+$LOG
+_EOF_
+
+# Send everything to the notify log file
+exec >> /var/log/keepalived_notify_log 2>&1
+echo "$(date --iso-8601=seconds): Notify called with $@"
 
 {% for if,ifvalues in vrrp_instance.items() %}
 
-{% if 'notify_master' in ifvalues %}
 if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "MASTER" ] ; then
-  echo "Performing notify commands for $STATE $IF" >> /tmp/notify_log
-{% for com in ifvalues['notify_master'] %}
+  echo "Performing notify commands for $STATE $IF"
+{% for com in ifvalues['notify_master']|default([]) %}
   {{ com }}
 {% endfor %}
+  exit 0
 fi
-{% endif %}
 
-{% if 'notify_backup' in ifvalues %}
 if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "BACKUP" ] ; then
-  echo "Performing notify commands for $STATE $IF" >> /tmp/notify_log
-{% for com in ifvalues['notify_backup'] %}
+  echo "Performing notify commands for $STATE $IF"
+{% for com in ifvalues['notify_backup']|default([]) %}
   {{ com }}
 {% endfor %}
+  exit 0
 fi
-{% endif %}
 
-{% if 'notify_fault' in ifvalues %}
 if [ "$IF" == "{{ if }}" ] && [ "$STATE" == "FAULT" ] ; then
-  echo "Performing notify commands for $STATE $IF" >> /tmp/notify_log
-{% for com in ifvalues['notify_fault'] %}
+  echo "Performing notify commands for $STATE $IF"
+{% for com in ifvalues['notify_fault']|default([]) %}
   {{ com }}
 {% endfor %}
+  exit 0
 fi
-{% endif %}
 
 {% endfor %}
 
 
 
 # interface not specified or known
-
+echo "Interface not specified or unknown"
 exit 1
-

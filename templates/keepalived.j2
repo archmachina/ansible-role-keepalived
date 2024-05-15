@@ -27,12 +27,9 @@ vrrp_instance {{ vname }} {
 {% else %}
   preempt_delay {{ keepalived_preempt_delay }}
 {% endif %}
-{% if 'notify_backup' in vvalues %}
+  notify_master "{{ notify_script_location }} MASTER {{ vname }}"
   notify_backup "{{ notify_script_location }} BACKUP {{ vname }}"
-{% endif %}
-{% if 'notify_fault' in vvalues %}
   notify_fault "{{ notify_script_location }} FAULT {{ vname }}"
-{% endif %}
   authentication {
     auth_type PASS
     auth_pass {{ keepalived_auth_pass }}
