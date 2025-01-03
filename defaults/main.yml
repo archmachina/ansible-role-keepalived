@@ -4,3 +4,4 @@ notify_script_location: "/usr/local/bin/keepalived_notify"
 keepalived_preempt_delay: 120
 keepalived_auth_pass: "S3cretP@ss"
 keepalived_advertisement_interval: 1
+

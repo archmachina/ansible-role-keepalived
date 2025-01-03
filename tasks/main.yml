@@ -1,9 +1,5 @@
 ---
 
-- name: Set default keepalived service state
-  set_fact:
-    keepalived_service_state: "started"
-
 ########
 # Install packages
 
@@ -50,15 +46,9 @@
 ########
 # Configure service and restart if necessary
 
-- name: Trigger keepalived restart
-  when: keepalived_config.changed or notify_script.changed
-  set_fact:
-    keepalived_service_state: "restarted"
-
 - name: Keepalived Service
   service: 
     name: keepalived
     enabled: true
-    state: "{{ keepalived_service_state }}"
+    state: "{{ 'restarted' if keepalived_config.changed or notify_script.changed else 'started' }}"
 
-...
