@@ -18,6 +18,7 @@ vrrp_instance {{ vname }} {
 {% else %}
   state BACKUP
 {% endif %}
+  vrrp_garp_master_refresh 60
   interface {{ vvalues['interface'] }}
   virtual_router_id {{ vvalues['vri'] }}
   priority {{ vvalues['priority'] }}
